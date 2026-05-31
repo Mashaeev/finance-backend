@@ -136,7 +136,8 @@ async def calculate_tax(
             tax_amount = tax_base * (tax_rate / 100)
 
     elif tax_system == "npd":
-        # НПД: 4% от физлиц + 6% от юрлиц
+        # НПД (самозанятость): 4% от физлиц + 6% от юрлиц
+        # Важно: только доходы с указанным payer_type!
         if is_admin_or_observer:
             ind_row = await conn.fetchrow(
                 """SELECT COALESCE(SUM(amount), 0) as total
@@ -148,6 +149,13 @@ async def calculate_tax(
                 """SELECT COALESCE(SUM(amount), 0) as total
                    FROM transactions
                    WHERE type='income' AND date >= $1 AND date <= $2 AND payer_type='legal'""",
+                date_from, date_to,
+            )
+            # Доходы без указания payer_type (NULL)
+            null_row = await conn.fetchrow(
+                """SELECT COALESCE(SUM(amount), 0) as total
+                   FROM transactions
+                   WHERE type='income' AND date >= $1 AND date <= $2 AND payer_type IS NULL""",
                 date_from, date_to,
             )
         else:
@@ -163,12 +171,28 @@ async def calculate_tax(
                    WHERE type='income' AND date >= $1 AND date <= $2 AND user_id=$3 AND payer_type='legal'""",
                 date_from, date_to, current_user["user_id"],
             )
+            # Доходы без указания payer_type (NULL)
+            null_row = await conn.fetchrow(
+                """SELECT COALESCE(SUM(amount), 0) as total
+                   FROM transactions
+                   WHERE type='income' AND date >= $1 AND date <= $2 AND user_id=$3 AND payer_type IS NULL""",
+                date_from, date_to, current_user["user_id"],
+            )
 
         ind_income = float(ind_row["total"])
         legal_income = float(legal_row["total"])
-        tax_base = income_total
+        null_income = float(null_row["total"])
+        # Налоговая база только от доходов с указанным payer_type
+        tax_base = ind_income + legal_income
+        # 4% от физлиц + 6% от юрлиц (фиксированные ставки НПД)
         tax_amount = (ind_income * 0.04) + (legal_income * 0.06)
-        details = {"individual_income": ind_income, "legal_income": legal_income}
+        details = {
+            "individual_income": ind_income, 
+            "legal_income": legal_income,
+            "null_income": null_income,
+            "tax_rate_individual": 4.0,
+            "tax_rate_legal": 6.0
+        }
 
     elif tax_system == "osno":
         # ОСНО (НДС 20%) — заглушка

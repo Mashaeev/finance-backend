@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from database import create_pool, close_pool
+from database import create_pool, close_pool, init_db
 from routers.auth_router         import router as auth_router
 from routers.transactions_router import router as transactions_router
 from routers.analytics_router    import router as analytics_router
@@ -19,6 +19,8 @@ from routers.tax_router          import router as tax_router
 async def lifespan(app: FastAPI):
     """Жизненный цикл приложения: открыть/закрыть пул БД."""
     await create_pool()
+    # Создаём таблицы при первом запуске
+    await init_db()
     yield
     await close_pool()
 

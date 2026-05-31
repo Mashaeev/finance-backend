@@ -60,10 +60,8 @@ async def create_default_categories():
             )
         
         print(f"✓ Created {len(expense_categories)} expense and {len(income_categories)} income categories")
-        
-        # Создаём тестовые транзакции
-        await create_default_transactions(conn)
 
+# Убрано - тестовые транзакции не нужны, пользователи создают сами
 async def create_default_transactions(conn):
     """Создание тестовых транзакций для демонстрации."""
     # Проверяем есть ли транзакции

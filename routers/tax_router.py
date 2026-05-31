@@ -44,10 +44,10 @@ async def update_tax_settings(
     """Обновить систему налогообложения (только админ)."""
     row = await conn.fetchrow(
         """UPDATE tax_settings
-           SET tax_system=$1, tax_rate=$2, updated_by=$3, updated_at=NOW()
+           SET tax_system=$1, tax_rate=$2, updated_at=NOW()
            WHERE id=(SELECT id FROM tax_settings ORDER BY id LIMIT 1)
            RETURNING *""",
-        data.tax_system.value, data.tax_rate, current_user["user_id"],
+        data.tax_system.value, data.tax_rate,
     )
     return dict(row)
 

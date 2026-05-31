@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from database import create_pool, close_pool, init_db
+from auth import hash_password
 from routers.auth_router         import router as auth_router
 from routers.transactions_router import router as transactions_router
 from routers.analytics_router    import router as analytics_router
@@ -21,8 +22,34 @@ async def lifespan(app: FastAPI):
     await create_pool()
     # Создаём таблицы при первом запуске
     await init_db()
+    # Создаём дефолтных пользователей
+    await create_default_users()
     yield
     await close_pool()
+
+async def create_default_users():
+    """Создание admin и buhgalter при первом запуске."""
+    from database import pool
+    async with pool.acquire() as conn:
+        # Создаём admin если нет
+        existing = await conn.fetchrow("SELECT id FROM users WHERE username='admin'")
+        if not existing:
+            hashed = hash_password("admin")
+            await conn.execute(
+                "INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, 'admin')",
+                "admin", "admin@finance.ru", hashed
+            )
+            print("✓ Admin created: admin / admin")
+        
+        # Создаём buhgalter если нет
+        existing2 = await conn.fetchrow("SELECT id FROM users WHERE username='buhgalter'")
+        if not existing2:
+            hashed2 = hash_password("buhgalter")
+            await conn.execute(
+                "INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, 'accountant')",
+                "buhgalter", "buhgalter@finance.ru", hashed2
+            )
+            print("✓ Accountant created: buhgalter / buhgalter")
 
 
 app = FastAPI(

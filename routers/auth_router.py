@@ -24,7 +24,7 @@ async def register(data: RegisterRequest, conn: Connection = Depends(get_connect
 
     hashed = hash_password(data.password)
     row = await conn.fetchrow(
-        """INSERT INTO users (username, email, password, role)
+        """INSERT INTO users (username, email, password_hash, role)
            VALUES ($1, $2, $3, 'observer')
            RETURNING id, role, username""",
         data.username, data.email, hashed,
@@ -69,11 +69,11 @@ async def change_password(
     conn: Connection = Depends(get_connection),
 ):
     """Смена пароля текущего пользователя."""
-    row = await conn.fetchrow("SELECT password FROM users WHERE id=$1", current_user["user_id"])
-    if not row or not verify_password(data.old_password, row["password"]):
+    row = await conn.fetchrow("SELECT password_hash FROM users WHERE id=$1", current_user["user_id"])
+    if not row or not verify_password(data.old_password, row["password_hash"]):
         raise HTTPException(status_code=400, detail="Неверный текущий пароль")
     hashed = hash_password(data.new_password)
-    await conn.execute("UPDATE users SET password=$1 WHERE id=$2", hashed, current_user["user_id"])
+    await conn.execute("UPDATE users SET password_hash=$1 WHERE id=$2", hashed, current_user["user_id"])
     return {"message": "Пароль успешно изменён"}
 
 @router.patch("/users/{user_id}/role", response_model=UserOut)
@@ -99,9 +99,9 @@ async def change_user_role(
 async def login(data: LoginRequest, conn: Connection = Depends(get_connection)):
     """Вход по логину и паролю."""
     row = await conn.fetchrow(
-        "SELECT id, password, role, username FROM users WHERE username=$1", data.username
+        "SELECT id, password_hash, role, username FROM users WHERE username=$1", data.username
     )
-    if not row or not verify_password(data.password, row["password"]):
+    if not row or not verify_password(data.password, row["password_hash"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный логин или пароль",

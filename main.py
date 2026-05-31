@@ -92,10 +92,15 @@ async def create_default_transactions(conn):
     today = datetime.now()
     
     transactions = [
-        # Доходы
+        # Доходы - разные источники
         (admin_id, cat_map.get("Зарплата"), "income", 85000, "Зарплата за май", today - timedelta(days=5)),
+        (admin_id, cat_map.get("Зарплата"), "income", 85000, "Зарплата за апрель", today - timedelta(days=35)),
         (admin_id, cat_map.get("Подработка"), "income", 15000, "Фриланс проект", today - timedelta(days=10)),
+        (admin_id, cat_map.get("Подработка"), "income", 8000, "Консультация", today - timedelta(days=22)),
         (admin_id, cat_map.get("Инвестиции"), "income", 5000, "Дивиденды", today - timedelta(days=15)),
+        (admin_id, cat_map.get("Инвестиции"), "income", 3200, "Проценты по вкладу", today - timedelta(days=40)),
+        (admin_id, cat_map.get("Подарки"), "income", 10000, "Подарок на день рождения", today - timedelta(days=12)),
+        (admin_id, cat_map.get("Подарки"), "income", 3000, "Бонус от родителей", today - timedelta(days=45)),
         
         # Расходы
         (admin_id, cat_map.get("Продукты"), "expense", 12500, "Продукты в Ашане", today - timedelta(days=2)),

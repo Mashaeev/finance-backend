@@ -33,10 +33,10 @@ async def create_default_categories():
     """Создание дефолтных категорий при первом запуске."""
     from database import pool
     async with pool.acquire() as conn:
-        # Очищаем все данные для чистого старта
-        await conn.execute("DELETE FROM transactions")
-        await conn.execute("DELETE FROM tax_settings")
-        await conn.execute("DELETE FROM categories WHERE user_id IS NULL")
+        # Проверяем есть ли категории
+        count = await conn.fetchval("SELECT COUNT(*) FROM categories")
+        if count > 0:
+            return
         
         # Дефолтные категории расходов (из ТЗ)
         expense_categories = [

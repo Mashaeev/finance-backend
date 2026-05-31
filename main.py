@@ -38,24 +38,21 @@ async def create_default_categories():
         if count > 0:
             return
         
-        # Дефолтные категории расходов
+        # Дефолтные категории расходов (из ТЗ)
         expense_categories = [
-            ("Продукты", "expense", "🛒", None),
-            ("Транспорт", "expense", "🚗", None),
-            ("Жильё", "expense", "🏠", None),
-            ("Развлечения", "expense", "🎮", None),
-            ("Здоровье", "expense", "💊", None),
-            ("Одежда", "expense", "👕", None),
-            ("Коммунальные", "expense", "💡", None),
-            ("Связь", "expense", "📱", None),
+            ("Аренда", "expense", "🏠", None),
+            ("Зарплата", "expense", "�", None),
+            ("Товары", "expense", "🛒", None),
+            ("Налоги", "expense", "📄", None),
+            ("Прочие расходы", "expense", "�", None),
         ]
         
-        # Дефолтные категории доходов
+        # Дефолтные категории доходов (из ТЗ)
         income_categories = [
-            ("Зарплата", "income", "💰", None),
-            ("Подработка", "income", "🔧", None),
+            ("Выручка", "income", "�", None),
+            ("Займы", "income", "🤝", None),
             ("Инвестиции", "income", "📈", None),
-            ("Подарки", "income", "🎁", None),
+            ("Прочие доходы", "income", "💵", None),
         ]
         
         for cat in expense_categories + income_categories:
@@ -92,27 +89,25 @@ async def create_default_transactions(conn):
     today = datetime.now()
     
     transactions = [
-        # Доходы - разные источники
-        (admin_id, cat_map.get("Зарплата"), "income", 85000, "Зарплата за май", today - timedelta(days=5)),
-        (admin_id, cat_map.get("Зарплата"), "income", 85000, "Зарплата за апрель", today - timedelta(days=35)),
-        (admin_id, cat_map.get("Подработка"), "income", 15000, "Фриланс проект", today - timedelta(days=10)),
-        (admin_id, cat_map.get("Подработка"), "income", 8000, "Консультация", today - timedelta(days=22)),
-        (admin_id, cat_map.get("Инвестиции"), "income", 5000, "Дивиденды", today - timedelta(days=15)),
-        (admin_id, cat_map.get("Инвестиции"), "income", 3200, "Проценты по вкладу", today - timedelta(days=40)),
-        (admin_id, cat_map.get("Подарки"), "income", 10000, "Подарок на день рождения", today - timedelta(days=12)),
-        (admin_id, cat_map.get("Подарки"), "income", 3000, "Бонус от родителей", today - timedelta(days=45)),
+        # Доходы (из ТЗ)
+        (admin_id, cat_map.get("Выручка"), "income", 150000, "Продажа товаров", today - timedelta(days=5)),
+        (admin_id, cat_map.get("Выручка"), "income", 85000, "Услуги клиентам", today - timedelta(days=12)),
+        (admin_id, cat_map.get("Займы"), "income", 50000, "Кредит для бизнеса", today - timedelta(days=20)),
+        (admin_id, cat_map.get("Инвестиции"), "income", 15000, "Дивиденды", today - timedelta(days=15)),
+        (admin_id, cat_map.get("Прочие доходы"), "income", 8000, "Продажа оборудования", today - timedelta(days=8)),
         
-        # Расходы
-        (admin_id, cat_map.get("Продукты"), "expense", 12500, "Продукты в Ашане", today - timedelta(days=2)),
-        (admin_id, cat_map.get("Продукты"), "expense", 8300, "Еда в Пятёрочке", today - timedelta(days=7)),
-        (admin_id, cat_map.get("Транспорт"), "expense", 4500, "Бензин", today - timedelta(days=3)),
-        (admin_id, cat_map.get("Транспорт"), "expense", 1200, "Проезд на такси", today - timedelta(days=12)),
-        (admin_id, cat_map.get("Жильё"), "expense", 25000, "Аренда квартиры", today - timedelta(days=20)),
-        (admin_id, cat_map.get("Коммунальные"), "expense", 4800, "Электричество", today - timedelta(days=18)),
-        (admin_id, cat_map.get("Развлечения"), "expense", 3500, "Кино и кафе", today - timedelta(days=6)),
-        (admin_id, cat_map.get("Связь"), "expense", 900, "Мобильный интернет", today - timedelta(days=25)),
-        (admin_id, cat_map.get("Здоровье"), "expense", 2500, "Лекарства", today - timedelta(days=8)),
-        (admin_id, cat_map.get("Одежда"), "expense", 6700, "Новая футболка", today - timedelta(days=14)),
+        # Расходы (из ТЗ)
+        (admin_id, cat_map.get("Аренда"), "expense", 45000, "Аренда офиса", today - timedelta(days=3)),
+        (admin_id, cat_map.get("Аренда"), "expense", 15000, "Складское помещение", today - timedelta(days=18)),
+        (admin_id, cat_map.get("Зарплата"), "expense", 120000, "Зарплата сотрудникам", today - timedelta(days=5)),
+        (admin_id, cat_map.get("Зарплата"), "expense", 25000, "Премии", today - timedelta(days=10)),
+        (admin_id, cat_map.get("Товары"), "expense", 65000, "Закупка товара", today - timedelta(days=7)),
+        (admin_id, cat_map.get("Товары"), "expense", 28000, "Закупка сырья", today - timedelta(days=14)),
+        (admin_id, cat_map.get("Налоги"), "expense", 25000, "Налог на прибыль", today - timedelta(days=25)),
+        (admin_id, cat_map.get("Налоги"), "expense", 15000, "Страховые взносы", today - timedelta(days=22)),
+        (admin_id, cat_map.get("Прочие расходы"), "expense", 8000, "Транспорт", today - timedelta(days=6)),
+        (admin_id, cat_map.get("Прочие расходы"), "expense", 12000, "Реклама", today - timedelta(days=11)),
+        (admin_id, cat_map.get("Прочие расходы"), "expense", 3500, "Связь и интернет", today - timedelta(days=16)),
     ]
     
     for t in transactions:
